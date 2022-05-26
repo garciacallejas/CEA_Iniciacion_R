@@ -1,11 +1,14 @@
 
 library(tidyverse)
+library(maps)
+
 # -------------------------------------------------------------------------
 # sección de lectura de datos
 data(iris)
 sw <- read.csv2("datos/starwars_info_personajes_simplificado.csv")
 co2 <- read.csv2("datos/mauna_loa_co2.csv")
 eq <- read.csv2("datos/terremotos_simplificado.csv")
+
 # -------------------------------------------------------------------------
 # sección de tratamiento de datos
 
@@ -65,8 +68,6 @@ l1 <- ggplot(co2, aes(x = date, y = co2ppm, group = 1)) +
 # -------------------------------------------------------------------------
 # mapas
 
-library(maps)
-
 world_map <- map_data("world")
 head(world_map)
 
@@ -74,7 +75,7 @@ mapamundi <- ggplot(world_map, aes(x = long, y = lat, group = group)) +
   geom_polygon(fill="gray") +
   theme_bw()
 
-puntos_terremotos <- ggplot() +
+t1 <- ggplot() +
   geom_polygon(data = world_map,aes(x = long,
                                     y = lat,
                                     group = group),
@@ -86,7 +87,7 @@ puntos_terremotos <- ggplot() +
 
 # -----------------------------------------------------------------------
 # mapa mejorado
-puntos_terremotos2 <- ggplot() +
+t2 <- ggplot() +
   # mapa
   geom_polygon(data = world_map,aes(x = long, y = lat, group = group),
                fill = "gray") +
@@ -103,7 +104,6 @@ puntos_terremotos2 <- ggplot() +
 
 # -------------------------------------------------------------------------
 # sección de escritura de resultados
-
 
 ggsave(filename = "resultados/concentracion_CO2.png",plot = l1,width = 5,height = 5)
 
