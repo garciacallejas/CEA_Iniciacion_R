@@ -7,6 +7,8 @@ library(tidyverse)
 nat <- read.csv2("datos/nations.csv")
 nat.co2 <- read.csv2("datos/nations_co2.csv",dec = ".")
 
+# -------------------------------------------------------------------------
+
 # selección de columnas - dos métodos equivalentes
 nat.2 <- nat[,c("iso3c","year","region","gdp_percap")]
 nat.3 <- select(nat,iso3c,region,year,gdp_percap)
@@ -41,6 +43,7 @@ nat.paises <- subset(nat.clean, iso3c %in% c("ESP","MEX"))
 
 #inciso, podemos dibujar la evolución del gdp de diferentes paises
 nat.plot.data <- subset(nat.long,iso3c %in% c("ESP","MEX"))
+
 ggplot(nat.plot.data, aes(x = year, y = gdp_percap, group = iso3c)) + 
   geom_line(aes(color = iso3c))
 
@@ -69,3 +72,34 @@ datos.cero
 nat.regiones.co2.limpio <- subset(nat.regiones.co2, co2 != 0)
 ggplot(nat.regiones.co2.limpio,aes(x = year, y = co2, group = region)) + 
   geom_line(aes(color = region))
+
+
+# -------------------------------------------------------------------------
+# figura: tasa de natalidad media por regiones, 
+# con los datos del último año disponible
+
+natalidad <- nat %>% 
+  filter(year == max(year)) %>%
+  select(country,birth_rate,region) %>%
+  group_by(region) %>%
+  summarise(mean_birth_rate = mean(birth_rate,na.rm = T),
+            sd_birth_rate = sd(birth_rate, na.rm = T))
+
+# warnings...
+nat$birth_rate <- as.numeric(nat$birth_rate)
+
+natalidad <- nat %>% 
+  filter(year == max(year)) %>%
+  select(country,birth_rate,region) %>%
+  group_by(region) %>%
+  summarise(mean_birth_rate = mean(birth_rate,na.rm = T),
+            sd_birth_rate = sd(birth_rate, na.rm = T))
+
+ggplot(natalidad) + 
+  geom_errorbar(aes(x = region, y = mean_birth_rate,
+                    ymin = mean_birth_rate - sd_birth_rate,
+                    ymax = mean_birth_rate + sd_birth_rate,
+                    color = region)) + 
+  geom_point(aes(x = region, y = mean_birth_rate, fill = region), 
+             shape = 21) + 
+  theme_bw()
